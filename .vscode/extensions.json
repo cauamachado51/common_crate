@@ -1,0 +1,18 @@
+{
+    "recommendations": [
+        "tamasfe.even-better-toml",
+        "pkief.material-icon-theme",
+        "rust-lang.rust-analyzer",
+        "fill-labs.dependi",
+        "yzhang.markdown-all-in-one",
+        "michelemelluso.gitignore",
+        "ryu1kn.partial-diff",
+        "ms-ceintl.vscode-language-pack-pt-br",
+        "mhutchie.git-graph",
+        "usernamehw.errorlens",
+        "intellsmi.comment-translate",
+        "codeium.codeium",
+        "streetsidesoftware.code-spell-checker-portuguese-brazilian",
+        "github.vscode-github-actions"
+    ]
+}

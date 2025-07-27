@@ -1,0 +1,32 @@
+name: testes em linux # windows
+
+on:
+  push:
+    branches: [ test, testlinux ] # testwindows
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'Commit SHA (opcional)'
+        required: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest # windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.commit || github.ref_name }}
+      
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+                
+    - name: Testes
+      run: | # coloque seus comandos de teste abaixo
+        cargo run
+        
+    - name: Comparação dos testes
+      run: |
+        echo "HOME: $HOME"
+        echo "USER: $USER"
