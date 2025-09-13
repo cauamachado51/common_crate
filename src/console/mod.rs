@@ -7,3 +7,5 @@ pub use call_console::call_console;
 mod pause;
 pub use pause::pause;
 pub use pause::TEXT_PAUSE;
+
+mod iprintln;

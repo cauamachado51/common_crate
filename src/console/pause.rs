@@ -1,10 +1,10 @@
-use std::io::{self, Write};
+use std::{io::{self, Write}, sync::RwLock};
 
-pub static TEXT_PAUSE: std::sync::RwLock<&'static str> = std::sync::RwLock::new("Pressione enter para continuar...");
+pub static TEXT_PAUSE: RwLock<&'static str> = RwLock::new("Pressione enter para continuar...");
 
 /// pausa (o console) e exibe "Pressione enter para continuar...". exemplo:
 /// ```no_run
-/// *common_crate::LANGUAGE.write().unwrap() = "Press enter to continue...";
+/// *common_crate::TEXT_PAUSE.write().unwrap() = "Press enter to continue...";
 /// pause()
 /// ```
 pub fn pause() {

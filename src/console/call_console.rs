@@ -22,7 +22,7 @@ impl Drop for Console {
 /// Cria um console feio temporário que será liberado após a função acabar. Exemplo:
 /// ```
 /// #![windows_subsystem = "windows"] // iniciar o programa apenas GUI
-/// use common_crate::{call_console, read_host};
+/// use common_crate::{call_console, read_host, pause};
 /// 
 /// fn main() {
 ///     algo();
@@ -33,7 +33,7 @@ impl Drop for Console {
 ///     let _variavel_que_sera_destruida = call_console();
 ///     let nome: String = read_host("Digite seu nome: ");
 ///     println!("Seu nome é: {}", nome);
-///     read_host::<String>("pressione enter para sair");
+///     pause();
 /// }
 /// ```
 pub fn call_console() -> Console {
