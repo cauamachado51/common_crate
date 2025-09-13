@@ -9,7 +9,6 @@ mod console;
 #[cfg(windows)]
 pub use console::call_console;
 pub use console::read_host;
-pub use console::read_host2;
 pub use console::pause;
 pub use console::TEXT_PAUSE;
 

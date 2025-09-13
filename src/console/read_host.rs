@@ -1,80 +1,52 @@
+use std::fmt::Display;
 use std::io::{self, Write};
+use std::str::FromStr;
+
 
 /// Exibe um prompt, lê o que o usuário digitar no console e o retorna.
-/// caso ele não digite (apenas enter) e tenha default_output, o retorna. exemplo:
-/// ```
-/// use powershell::read_host;
+/// Caso falhe em parsear, exibe o erro e repete a requisição ao usuário.
+/// exemplo:
+/// ```no_run
+/// use common_crate::read_host;
 /// 
 /// fn main() {
-///     let nome = read_host!("Digite seu nome: ");
-///     println!("Seu nome é: {}", nome);
-///     
-///     let idade: u8 = read_host!("Digite sua idade: ", "21").parse().expect("erro ao parsear o retorno do read_host");
-///     println!("Sua idade é: {}", idade);
-/// }
-/// ```
-/// não aparece a definição fantasma de `prompt` e `default_output`.
-#[macro_export]
-macro_rules! read_host {
-    ($prompt:expr) => {
-        $crate::read_host($prompt)
-    };
-    ($prompt:expr, $default_output:expr) => {
-        $crate::read_host2($prompt, $default_output)
-    };
-}
-
-// Run Doctest falha ao parsear o vazio.
-/// Exibe um prompt, lê o que o usuário digitar no console e o retorna. exemplo:
-/// ```
-/// use powershell::read_host;
+///     let stringprompt: String = String::from("Digite sua idade: ");
 /// 
-/// fn main() {
-///     let nome = read_host("Digite seu nome: ");
-///     println!("Seu nome é: {}", nome);
-///     
-///     let idade: u8 = read_host("Digite sua idade: ").parse().expect("erro ao parsear o retorno do read_host");
-///     println!("Sua idade é: {}", idade);
-/// }
-/// ```
-pub fn read_host(prompt: &str) -> String {
-    // exibir o prompt
-    print!("{}", prompt);
-    io::stdout().flush().unwrap(); // exibir imediatamente
-
-    // Ler a entrada
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).unwrap();
-
-    return input.trim().to_string() // trim para remover o \n do enter
-}
-
-/// Exibe um prompt, lê o que o usuário digitar no console e o retorna.
-/// caso ele não digite (apenas enter) e tenha default_output, o retorna. exemplo:
-/// ```
-/// use powershell::read_host2;
+///     let usize: u8 = read_host(&stringprompt);
+///     let string: String = loop {
+///         let input: String = read_host("Digite seu nome: ");
+///         if input.is_empty() { println!("empty input.") } else { break input }
+///     };
+///     let boolean: bool = read_host("Digite se você é empregado (true/false): ");
+///     printar(&read_host::<String>("Digite qualquer coisa: "));
 /// 
-/// fn main() {
-///     let nome = read_host2("Digite seu nome: ", "");
-///     println!("Seu nome é: {}", nome);
-///     
-///     let idade: u8 = read_host2("Digite sua idade: ", "21").parse().expect("erro ao parsear o retorno do read_host");
-///     println!("Sua idade é: {}", idade);
+///     println!("Usize: {}", usize);
+///     println!("String: {}", string);
+///     println!("Boolean: {}", boolean);
+/// }
+/// fn printar(param: &str) {
+///     println!("param: {}", param);
 /// }
 /// ```
-pub fn read_host2(prompt: &str, default_output: &str) -> String {
-    print!("{}", prompt);
-    io::stdout().flush().expect("Erro ao limpar stdout");
+// TODO: implementar empty_loop
+pub fn read_host<T>(prompt: &str) -> T
+where 
+    T: FromStr,
+    T::Err: Display
+{
+    loop {
+        // exibir o prompt
+        print!("{}", prompt);
+        io::stdout().flush().unwrap(); // exibir imediatamente
 
-    let mut input = String::new();
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Erro ao ler entrada");
+        // Ler a entrada
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).unwrap();
 
-    let input = input.trim();
-    if input.is_empty() {
-        return default_output.to_string()
-    } else {
-        return input.to_string()
+        // Tentar fazer o parse para o tipo desejado
+        match input.trim().parse::<T>() {
+            Ok(value) => return value,
+            Err(e) => println!("{e}."),
+        }
     }
 }

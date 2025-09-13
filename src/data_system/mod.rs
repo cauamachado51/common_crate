@@ -5,12 +5,13 @@ pub fn key_value(text: &str) -> Option<(&str, &str)> {
     return text.split_once(':')
 }
 
-/// Separa e parsea string `"[1, 2, 3]"` ou `"1, 2, 3"` em array `[1, 2, 3]`. exemplo:
+/// Separa e parseia string `"[1, 2, 3]"` ou `"1, 2, 3"` em array `[1, 2, 3]`. Retorna `Result` com `Ok([T; N])` em caso de sucesso ou `Err(String)` em caso de falha.
+/// Exemplo:
 /// ```no_run
-/// let array1: [u8; 3] = parse_array("[1, 2, 3]");
-/// let array2 = parse_array::<bool, 3>("true, false, true");
+/// let array1: Result<[u8; 3], String> = parse_array("[1, 2, 3]");
+/// let array2: Result<[bool; 3], String> = parse_array("true, false, true");
 /// ```
-pub fn parse_array<T, const N: usize>(text: &str) -> [T; N]
+pub fn parse_array<T, const N: usize>(text: &str) -> Result<[T; N], String>
 where 
     T: FromStr,
     T::Err: std::fmt::Debug,
@@ -26,9 +27,23 @@ where
     };
 
     // Divide por vírgula e coleta as partes
-    let mut parts = cleaned.split(',').map(|s| s.trim());
+    let parts: Vec<&str> = cleaned.split(',').map(|s| s.trim()).collect();
     
+    // Verifica se o número de elementos é correto
+    if parts.len() != N {
+        return Err(format!("Esperado {} elementos, encontrado {}", N, parts.len()));
+    }
+
     // Cria array convertendo cada elemento para o tipo T
-    return array::from_fn(|_| { parts.next().unwrap().parse::<T>().unwrap() });
+    let mut result = array::from_fn(|_| None);
+    for (i, &part) in parts.iter().enumerate() {
+        match part.parse::<T>() {
+            Ok(value) => result[i] = Some(value),
+            Err(_) => return Err(format!("Falha ao parsear elemento '{}'", part)),
+        }
+    }
+    
+    // Converte Option<T> em T, sabendo que todos são Some
+    Ok(result.map(|opt| opt.unwrap()))
 }
 
