@@ -3,9 +3,10 @@ use std::str::FromStr;
 use std::fmt::Debug;
 
 /// Separa e parseia string `"[1, 2, 3]"` ou `"1, 2, 3"` em array `[1, 2, 3]`. Retorna `Result` com `Ok([T; N])` em caso de sucesso ou `Err(String)` em caso de falha.
-/// Exemplo:
-/// ```no_run
-/// let array1 = parse_array::<[u8; 3]>("[1, 2, 3]").unwrap();
+/// ### Exemplo
+/// ```
+/// use common_crate::ds::parse_array;
+/// let array1: [u8; 3] = parse_array("[1, 2, 3]").unwrap();
 /// let array2: [bool; 3] = parse_array("true, false, true").unwrap();
 /// ```
 pub fn parse_array<T, const N: usize>(text: &str) -> Result<[T; N], String>

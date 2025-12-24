@@ -1,16 +1,17 @@
 use std::env;
-use std::path::Path;
 
-/// Expande variáveis de ambiente do caminho. Exemplo:
+/// Expande variáveis de ambiente do caminho. não testa se existe.
+/// ### Exemplo
 /// ```
-/// use common_crate::{expand_path, test_path};
-///
-/// fn main() {
-///     println!("expand %USERPROFILE%/Desktop/teste.ps1: {}", expand_path("%USERPROFILE%/Desktop/teste.ps1")); // C:\Users\USER\Desktop\teste.ps1
-///     println!("expand&test $env:USERPROFILE/Desktop/teste.ps1: {}", test_path(&expand_path("$env:USERPROFILE/Desktop/teste.ps1"))); // true or false
-///     println!("expand ~/Desktop/teste.ps1: {}", expand_path("~/Desktop/teste.ps1")); // /home/USER/Desktop/teste.ps1
-///     println!("expand&test $HOME/Desktop/teste.ps1: {}", test_path(&expand_path("$HOME/Desktop/teste.ps1"))); // true or false
-/// }
+/// use common_crate::fs::expand_path;
+/// // Windows cmd
+/// println!("%USERPROFILE%/Desktop/teste.ps1: {}", expand_path("%USERPROFILE%/Desktop/teste.ps1"));
+/// // Windows PowerShell
+/// println!("$env:USERPROFILE/Desktop/teste.ps1: {}", expand_path("$env:USERPROFILE/Desktop/teste.ps1"));
+/// // Linux e Windows sugar syntaxe
+/// println!("~/Desktop/teste.ps1: {}", expand_path("~/Desktop/teste.ps1"));
+/// // Linux
+/// println!("$HOME/Desktop/teste.ps1: {}", expand_path("$HOME/Desktop/teste.ps1"));
 /// ```
 /// para listar variáveis de ambiente, use `std::env::vars().for_each(|(k, v)| println!("{}: {}", k, v));`
 pub fn expand_path(path: &str) -> String {
@@ -100,26 +101,4 @@ pub fn expand_path(path: &str) -> String {
     }
 
     result
-}
-
-/// Testa se o caminho existe.
-/// Para expandir variáveis de ambiente, use `expand_path`,
-/// não é integrado para você ter controle de quando expande, pois arquivos podem ter `%` e `$` no nome.
-pub fn test_path(path: &str) -> bool {
-    Path::new(path).exists()
-}
-
-/// Testa se o caminho é um arquivo.
-pub fn test_file(path: &str) -> bool {
-    Path::new(path).is_file()
-}
-
-/// Testa se o caminho é um diretório.
-pub fn test_dir(path: &str) -> bool {
-    Path::new(path).is_dir()
-}
-
-/// Testa se o caminho é um symlink.
-pub fn test_symlink(path: &str) -> bool {
-    Path::new(path).is_symlink()
 }

@@ -1,9 +1,9 @@
-/// Exibe texto diretamente no terminal, sem usar canais como stdout e stderr. Exemplo:
-/// ```no_run
-/// fn main() {
-///     iprintln!("texto exibido"); // direto no terminal
-///     println!("texto retornado"); // stdout
-/// }
+/// Exibe texto diretamente no terminal, sem usar canais como stdout e stderr.
+/// ### Exemplo
+/// ```
+/// use common_crate::console::iprintln;
+/// iprintln!("texto exibido"); // direto no terminal
+/// println!("texto retornado"); // stdout
 /// ```
 /// veja:
 /// ```PowerShell
@@ -14,6 +14,7 @@
 /// PS > cargo run *> $null # redirecionar canais para o vazio
 /// texto exibido
 /// ```
+#[doc(hidden)]
 #[macro_export]
 macro_rules! iprintln {
     ($($arg:tt)*) => {{
@@ -31,12 +32,12 @@ macro_rules! iprintln {
     }};
 }
 
-/// Exibe texto diretamente no terminal, sem usar canais como stdout e stderr. Exemplo:
-/// ```no_run
-/// fn main() {
-///     iprint!("texto exibido"); // direto no terminal
-///     println!("texto retornado"); // stdout
-/// }
+/// Exibe texto diretamente no terminal, sem usar canais como stdout e stderr.
+/// ### Exemplo
+/// ```
+/// use common_crate::console::iprint;
+/// iprint!("texto exibido"); // direto no terminal
+/// println!("texto retornado"); // stdout
 /// ```
 /// veja:
 /// ```PowerShell
@@ -47,6 +48,7 @@ macro_rules! iprintln {
 /// PS > cargo run *> $null # redirecionar canais para o vazio
 /// texto exibido
 /// ```
+#[doc(hidden)]
 #[macro_export]
 macro_rules! iprint {
     ($($arg:tt)*) => {{

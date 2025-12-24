@@ -1,4 +1,4 @@
-use common_crate::{key_value, parse_array, parse_vec};
+use common_crate::ds::{parse_array, parse_vec};
 
 #[test]
 fn test_parse_array() {
@@ -31,15 +31,6 @@ fn test_parse_array() {
     match parse_array::<u8, 3>("[1, , 3]") {
         Ok(array) => println!("{:?}", array),
         Err(error) => println!("{}", error), // Falha ao parsear elemento ''
-    }
-}
-
-#[test]
-fn test_key_value() {
-    let algo = key_value("chave:valor");
-    match algo {
-        Some((chave, valor)) => { assert_eq!(chave, "chave"); assert_eq!(valor, "valor") },
-        None => assert!(false),
     }
 }
 

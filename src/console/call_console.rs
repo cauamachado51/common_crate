@@ -37,10 +37,11 @@ impl Drop for Console {
     }
 }
 
-/// Cria um console feio temporário que será liberado ao dropar a variavel. Exemplo:
+/// Chama um console feio com o processo do app que será liberado ao dropar a variavel.
+/// ### Exemplo
 /// ```
 /// #![windows_subsystem = "windows"] // iniciar o programa apenas GUI
-/// use common_crate::{call_console, read_host, pause};
+/// use common_crate::console::{call_console, read_host, pause};
 /// 
 /// fn main() {
 ///     algo();

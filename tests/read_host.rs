@@ -1,5 +1,5 @@
 // por ter interatividade compila eternamente, copie e cole em main.rs.
-use common_crate::read_host;
+use common_crate::console::read_host;
 
 fn main() {
     let stringprompt: String = String::from("Digite um usize (0-255): ");

@@ -4,29 +4,17 @@ use std::str::FromStr;
 
 
 /// Exibe um prompt, lê o que o usuário digitar no console e o retorna.
-/// Caso falhe em parsear, exibe o erro e repete a requisição ao usuário.
-/// exemplo:
+/// Requer anotação de tipo, caso falhe em parsear, exibe o erro e repete a requisição ao usuário.
+/// ### Exemplo
 /// ```no_run
-/// use common_crate::read_host;
+/// use common_crate::console::read_host;
 /// 
-/// fn main() {
-///     let stringprompt: String = String::from("Digite sua idade: ");
-/// 
-///     let usize: u8 = read_host(&stringprompt);
-///     let string: String = loop {
-///         let input: String = read_host("Digite seu nome: ");
-///         if input.is_empty() { println!("empty input.") } else { break input }
-///     };
-///     let boolean: bool = read_host("Digite se você é empregado (true/false): ");
-///     printar(&read_host::<String>("Digite qualquer coisa: "));
-/// 
-///     println!("Usize: {}", usize);
-///     println!("String: {}", string);
-///     println!("Boolean: {}", boolean);
-/// }
-/// fn printar(param: &str) {
-///     println!("param: {}", param);
-/// }
+/// let string: String = loop {
+///     let user_input: String = read_host("Digite seu nome: ");
+///     if user_input.is_empty() { println!("empty input.") } else { break user_input }
+/// };
+/// let usize: u8 = read_host("Digite sua idade: ");
+/// let boolean: bool = read_host("Digite se você é empregado (true/false): ");
 /// ```
 // TODO: implementar empty_loop
 pub fn read_host<T>(prompt: &str) -> T

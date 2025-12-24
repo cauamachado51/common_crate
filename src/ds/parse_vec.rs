@@ -3,8 +3,9 @@ use std::fmt::Debug;
 
 /// Separa e parseia string `"[1, 2, 3]"` ou `"1, 2, 3"` em Vec `vec![1, 2, 3]`. Retorna `Result` com `Ok(Vec<T>)` em caso de sucesso ou `Err(String)` em caso de falha.
 /// Esta função aceita tamanho dinâmico, determinado em tempo de execução.
-/// Exemplo:
-/// ```no_run
+/// ### Exemplo
+/// ```
+/// use common_crate::ds::parse_vec;
 /// let vec1: Vec<u8> = parse_vec("[1, 2, 3]").unwrap();
 /// let vec2: Vec<bool> = parse_vec("true, false, true").unwrap();
 /// ```
