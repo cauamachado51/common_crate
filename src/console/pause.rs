@@ -1,5 +1,6 @@
 use std::{io::{self, Write}, sync::RwLock};
 
+/// [`pause`]
 pub static PAUSE_TEXT: RwLock<&'static str> = RwLock::new("Pressione enter para continuar...");
 
 /// Pausa e exibe "Pressione enter para continuar...".

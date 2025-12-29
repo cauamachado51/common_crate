@@ -11,12 +11,11 @@ use std::str::FromStr;
 /// 
 /// let string: String = loop {
 ///     let user_input: String = read_host("Digite seu nome: ");
-///     if user_input.is_empty() { println!("empty input.") } else { break user_input }
+///     if user_input.is_empty() { eprintln!("empty input.") } else { break user_input }
 /// };
 /// let usize: u8 = read_host("Digite sua idade: ");
 /// let boolean: bool = read_host("Digite se você é empregado (true/false): ");
 /// ```
-// TODO: implementar empty_loop
 pub fn read_host<T>(prompt: &str) -> T
 where 
     T: FromStr,

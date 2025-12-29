@@ -4,13 +4,18 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+rayon = { version = "1.11.0", default-features = false } # copy_dir
 
 [dev-dependencies]
 criterion = { version = "0.7.0", default-features = false }
+which = "8.0.0" # competidor do find_in_path
 
 [[bench]]
 name = "key_value"
 harness = false
 [[bench]]
 name = "parse_array"
+harness = false
+[[bench]]
+name = "find_in_path"
 harness = false

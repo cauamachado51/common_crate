@@ -1,0 +1,1 @@
+fn main(){} // cargo bloat --example main --release: file size is 118.0KiB

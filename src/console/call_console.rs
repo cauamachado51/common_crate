@@ -13,7 +13,7 @@ const ENABLE_VIRTUAL_TERMINAL_PROCESSING: u32 = 4; // habilita ansi
 pub struct Console;
 
 impl Console {
-    fn new() -> Self {
+    fn call() -> Self {
         unsafe {
             AllocConsole();
             Self::enable_ansi();
@@ -55,6 +55,8 @@ impl Drop for Console {
 ///     pause();
 /// }
 /// ```
+/// ### Outros
+/// é uma função como wrapper para não sujar o namespace com Console de outra crate.
 pub fn call_console() -> Console {
-    Console::new()
+    Console::call()
 }
