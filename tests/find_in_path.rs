@@ -5,15 +5,15 @@ use which::which;
 #[test]
 fn main(){ // cargo test --test find_in_path -- --nocapture
 	let time = Instant::now();
-	let result = find_in_path("singleinstance.exe_source.7z").unwrap();
-    println!("find_in_path {:?} em {}ms", result, time.elapsed().as_millis()); // 0ms
+	let path = find_in_path("bootstat.dat").unwrap_or_default();
+    println!("find_in_path {:?} em {}µs", path, time.elapsed().as_micros()); // 367µs
 	let time = Instant::now();
-	let result = which("singleinstance.exe_source.7z").unwrap();
-    println!("which {:?} em {}ms", result, time.elapsed().as_millis()); // 7ms
+	let path = which("bootstat.dat").unwrap_or_default();
+    println!("which        {:?} em {}µs", path, time.elapsed().as_micros()); // 1801µs
 	let time = Instant::now();
-    let path = find_in_path("notepad").unwrap(); // 1ms
-	println!("find_in_path {:?} em {}ms", path, time.elapsed().as_millis());
+    let path = find_in_path("notepad").unwrap_or_default(); // 1156µs
+	println!("find_in_path {:?} em {}µs", path, time.elapsed().as_micros());
 	let time = Instant::now();
-    let path = which("notepad").unwrap(); // 3ms
-	println!("which {:?} em {}ms", path, time.elapsed().as_millis());
+    let path = which("notepad").unwrap_or_default(); // 2860µs
+	println!("which        {:?} em {}µs", path, time.elapsed().as_micros());
 }

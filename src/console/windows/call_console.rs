@@ -41,7 +41,7 @@ impl Drop for Console {
 /// ### Exemplo
 /// ```
 /// #![windows_subsystem = "windows"] // iniciar o programa apenas GUI
-/// use common_crate::console::{call_console, read_host, pause};
+/// use common_crate::console::{windows::call_console, read_host, pause};
 /// 
 /// fn main() {
 ///     algo();
@@ -56,7 +56,8 @@ impl Drop for Console {
 /// }
 /// ```
 /// ### Outros
-/// é uma função como wrapper para não sujar o namespace com Console de outra crate.
+/// é uma função como wrapper para não sujar o namespace com Console de outra crate.<br>
+/// tem suporte ANSI.
 pub fn call_console() -> Console {
     Console::call()
 }

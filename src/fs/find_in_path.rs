@@ -1,5 +1,7 @@
 use std::{env, path::{PathBuf, Path}};
 use crate::fs::PathExt;
+#[allow(unused_imports)]
+use std::fs;
 
 /// Busca o caminho de um arquivo no path do sistema.
 /// ### Exemplo
@@ -10,7 +12,7 @@ use crate::fs::PathExt;
 /// ```
 /// ### Testes
 /// cargo bloat --release --example String: size_find_in_path 135.5KiB, size_which 162.5KiB<br>
-/// cargo test --test find_in_path -- --nocapture: find_in_path 0ms, which 7ms
+/// cargo test --test find_in_path -- --nocapture: find_in_path 1156µs, which 2860µs
 #[cfg(not(windows))]
 pub fn find_in_path(file: &str) -> Option<PathBuf> {
     let paths_str = env::var_os("PATH")?;
@@ -28,7 +30,11 @@ pub fn find_in_path(file: &str) -> Option<PathBuf> {
 /// ```
 /// ### Testes
 /// cargo bloat --release --example String: size_find_in_path 135.5KiB, size_which 162.5KiB<br>
-/// cargo test --test find_in_path -- --nocapture: find_in_path 0ms, which 7ms
+/// cargo test --test find_in_path -- --nocapture: find_in_path 1156µs, which 2860µs
+/// ### Outros
+/// 1. caso passe arquivo sem extensão, tenta com as extensões do PATHEXT, mas caso passe nome do arquivo com .algo, não adiciona.
+/// ex.: passar notepad++.exe não acha notepad++.exe.bat (igual which).
+/// 2. usa [`fs::canonicalize`] (mais rápido que [`fs::read_dir`]) para evitar erros de maiúsculas/minúsculas em extensões.
 #[cfg(windows)]
 pub fn find_in_path(file: &str) -> Option<PathBuf> {
     let paths_str = env::var_os("PATH")?;
@@ -50,7 +56,7 @@ pub fn find_in_path(file: &str) -> Option<PathBuf> {
 
 			if file_path.exists() {
             	if let Ok(file_canon) = file_path.canonicalize() { // canon para não ser EXE/exe erroneamente
-            	    return Some(PathBuf::from(file_canon.clean_verbatim()));
+            	    return Some(file_canon.clean_verbatim());
             	}
 			}
         }

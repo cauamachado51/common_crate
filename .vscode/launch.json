@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug (GNU)",
+            "cargo": {
+                "args": [
+                    "+stable-x86_64-pc-windows-gnu",
+                    "build" // , "--bin", "meu_bin"
+                ]
+            },
+            "args": [], // passado ao binario
+        }
+    ]
+}

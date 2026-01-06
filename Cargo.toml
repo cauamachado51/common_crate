@@ -9,6 +9,8 @@ rayon = { version = "1.11.0", default-features = false } # copy_dir
 [dev-dependencies]
 criterion = { version = "0.7.0", default-features = false }
 which = "8.0.0" # competidor do find_in_path
+walkdir = "2.3.4" # competidor ganhador do read_dirs
+wildmatch = "2.6.1" # competidor do match_wildcard
 
 [[bench]]
 name = "key_value"
