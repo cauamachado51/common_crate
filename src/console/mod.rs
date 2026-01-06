@@ -1,9 +1,8 @@
 mod read_host;
 pub use read_host::read_host;
 
-mod call_console;
 #[cfg(windows)]
-pub use call_console::call_console;
+pub mod windows;
 
 mod pause;
 pub use pause::pause;

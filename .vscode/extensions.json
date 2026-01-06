@@ -1,6 +1,6 @@
 {
     "recommendations": [
-        "tamasfe.even-better-toml",
+        "tombi-toml.tombi",
         "pkief.material-icon-theme",
         "rust-lang.rust-analyzer",
         "fill-labs.dependi",

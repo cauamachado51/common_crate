@@ -6,13 +6,13 @@ use crate::fs::bytes::parse_bytes;
 /// - `path`: caminho onde irão ser criadas as pastas e arquivos.
 /// - `folder_recursion`: quantas subpastas irão ser criadas.
 /// - `file_quantity`: quantos arquivos irão ser criados em cada pasta.
-/// - `file_size`: tamanho dos arquivos. ex.: "1,5KB"
+/// - `file_size`: tamanho dos arquivos. ex.: "1,5KB".
 pub fn new_fs_test_structure<P>(path: P, folder_recursion: u16, file_quantity: u16, file_size: &str) -> io::Result<()>
 where 
 	P: AsRef<Path>
 {
 	let mut path = PathBuf::from(path.as_ref());
-	let file_size = parse_bytes(file_size).unwrap();
+	let file_size = parse_bytes(file_size).map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
 
     for folder_n in 0..=folder_recursion {
         fs::create_dir_all(&path)?;

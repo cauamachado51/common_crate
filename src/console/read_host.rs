@@ -33,7 +33,7 @@ where
         // Tentar fazer o parse para o tipo desejado
         match input.trim().parse::<T>() {
             Ok(value) => return value,
-            Err(e) => println!("{e}."),
+            Err(e) => println!("{e}"),
         }
     }
 }

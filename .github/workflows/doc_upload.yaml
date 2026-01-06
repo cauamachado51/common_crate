@@ -1,0 +1,48 @@
+name: doc_upload
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      commit_choice:
+        description: 'Commit SHA (opcional)'
+        required: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  doc_upload:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.commit_choice || github.ref_name }}
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Build Docs
+      shell: pwsh
+      run: | # tenha cuidado com caracteres substituidos por _
+        cargo doc --no-deps
+        $crate_name = Get-Location | Split-Path -Leaf 
+        Set-Content -Path "target/doc/index.html" -Value "<meta http-equiv=refresh content=0;url=$crate_name/index.html>" -Encoding utf8
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+
+    - name: Upload Artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: 'target/doc'
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
