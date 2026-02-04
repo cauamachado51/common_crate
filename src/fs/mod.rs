@@ -6,7 +6,7 @@ pub use expand_path::expand_path;
 mod copy_dir;
 pub use copy_dir::copy_dir;
 
-pub mod metaprograming;
+pub mod metaprogramming;
 
 mod find_in_path;
 pub use find_in_path::find_in_path;
