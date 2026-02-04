@@ -1,9 +1,7 @@
-use procedural::command;
+use procedural::stack_string;
 
 fn main() {
-	command!("pwsh", "-File", "tests/command.ps1");
-	println!("{}", data()); // ex.: 02/02/2026 05:31:14
-
-	let a = command!("target/debug/meu_bin.exe");
-	println!("{a}");
+    let stack: [u8; 7] = stack_string!("olá❤"); 
+	assert_eq!(stack, [111, 108, 195, 161, 226, 157, 164]);
+	assert_eq!(str::from_utf8(&stack).unwrap(), "olá❤");
 }
