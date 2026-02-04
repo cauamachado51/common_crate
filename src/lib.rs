@@ -5,8 +5,7 @@ use std::sync::Mutex;
 pub mod console;
 pub mod ds;
 pub mod fs;
-pub mod metaprograming;
-// pub mod metaprograming;
+pub mod metaprogramming;
 
 /// Usado para bloquear a thread.
 /// - [`fs::copy_dir`]: não travar o disco.
