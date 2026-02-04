@@ -2,6 +2,7 @@
 name = "common_crate"
 version = "0.1.0"
 edition = "2024"
+default-run = "common_crate"
 
 [workspace]
 members = ["procedural"]
@@ -10,6 +11,7 @@ resolver = "3"
 [dependencies]
 rayon = { version = "1.11.0", default-features = false } # copy_dir
 procedural = { path = "procedural" }
+windows = { version = "0.62.2", features = ["Win32_Storage_FileSystem"] }
 
 [dev-dependencies]
 criterion = { version = "0.7.0", default-features = false }

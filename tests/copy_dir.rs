@@ -1,6 +1,6 @@
 // para ver os resultados, copie para a main.rs
 use std::{fs::remove_dir_all, path::Path, time::Instant};
-use common_crate::fs::{copy_dir, metaprograming::new_fs_test_structure};
+use common_crate::fs::{copy_dir, metaprogramming::new_fs_test_structure};
 
 fn main() {
 	let fstest_big = Path::new("tests_cache/Big");  // 2x1gb
