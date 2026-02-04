@@ -11,30 +11,30 @@ use std::fmt::Debug;
 /// ```
 pub fn parse_vec<T>(text: &str) -> Result<Vec<T>, String>
 where 
-    T: FromStr,
-    T::Err: Debug,
+	T: FromStr,
+	T::Err: Debug,
 {   
-    let text = text.trim();
-    // Remove colchetes se presentes, caso contrário usa o texto como está
-    let cleaned = {
-        if text.starts_with('[') && text.ends_with(']') {
-            &text[1..text.len() - 1]
-        } else {
-            text
-        }
-    };
+	let text = text.trim();
+	// Remove colchetes se presentes, caso contrário usa o texto como está
+	let cleaned = {
+		if text.starts_with('[') && text.ends_with(']') {
+			&text[1..text.len() - 1]
+		} else {
+			text
+		}
+	};
 
-    // Trabalha diretamente com o iterador
-    let parts = cleaned.split(',').map(|s| s.trim());
-    
-    let mut result = Vec::new();
-    
-    for part in parts {
-        match part.parse::<T>() {
-            Ok(value) => result.push(value),
-            Err(_) => return Err(format!("Falha ao parsear elemento '{}'", part)),
-        }
-    }
-    
-    Ok(result)
+	// Trabalha diretamente com o iterador
+	let parts = cleaned.split(',').map(|s| s.trim());
+	
+	let mut result = Vec::new();
+	
+	for part in parts {
+		match part.parse::<T>() {
+			Ok(value) => result.push(value),
+			Err(_) => return Err(format!("Falha ao parsear elemento '{}'", part)),
+		}
+	}
+	
+	Ok(result)
 }

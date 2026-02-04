@@ -22,18 +22,18 @@ match erro {
 "#; 
 
 pub const PARSE_BYTES_CORRECTION: &str = r#"
-    if !frac_str.is_empty() {
+	if !frac_str.is_empty() {
 		if frac_str.len() > 38 { return Err(String::from("fração u128: max 38 dígitos")); }
-        let frac_num: u128 = frac_str.parse().map_err(|_| format!("Fração inválida: {}", frac_str))?;
-        let divisor = 10u128.pow(frac_str.len() as u32);
+		let frac_num: u128 = frac_str.parse().map_err(|_| format!("Fração inválida: {}", frac_str))?;
+		let divisor = 10u128.pow(frac_str.len() as u32);
 
-        // Fórmula: (frac_num * multiplier) / 10^casas_decimais
-        // Adiciona (divisor / 2) antes de dividir para arredondar o inteiro corretamente
-        let numerator = frac_num.checked_mul(multiplier as u128).ok_or_else(||format!("Overflow na fração: {}", frac_num))?;
-        let frac_bytes = (numerator + (divisor / 2)) / divisor;
+		// Fórmula: (frac_num * multiplier) / 10^casas_decimais
+		// Adiciona (divisor / 2) antes de dividir para arredondar o inteiro corretamente
+		let numerator = frac_num.checked_mul(multiplier as u128).ok_or_else(||format!("Overflow na fração: {}", frac_num))?;
+		let frac_bytes = (numerator + (divisor / 2)) / divisor;
 
-        total_bytes = total_bytes.checked_add(frac_bytes as u64).ok_or("Overflow total de bytes")?;
-    }
+		total_bytes = total_bytes.checked_add(frac_bytes as u64).ok_or("Overflow total de bytes")?;
+	}
 "#;
 
 pub const PARSE_BYTES_CORRECTION_COST: &str = r#"
@@ -61,53 +61,53 @@ println!("{} em {}ns", b, time.elapsed().as_nanos()); // 7800ns
 /// o explorer do windows exibe numero kib, mas mostra a unidade erroneamente como kb.<br>
 /// veja [`PARSE_BYTES_ERROR`], [`PARSE_BYTES_CORRECTION`] e [`PARSE_BYTES_CORRECTION_COST`]. por demorar 6.8x mais e eu não usar tanta fração, não vou corrigir. 
 pub fn parse_bytes(size: &str) -> Result<u64, String> {
-    let size_clean = size.trim().to_lowercase().replace(',', ".");
+	let size_clean = size.trim().to_lowercase().replace(',', ".");
 
-    // achar o indice de onde não é numérico e ponto, ou padrão ultimo indice "" (caso sem unit)
-    let split_idx = size_clean.find(|c: char| !c.is_numeric() && c != '.').unwrap_or(size_clean.len());
-    let (num_part, unit_part) = size_clean.split_at(split_idx);
+	// achar o indice de onde não é numérico e ponto, ou padrão ultimo indice "" (caso sem unit)
+	let split_idx = size_clean.find(|c: char| !c.is_numeric() && c != '.').unwrap_or(size_clean.len());
+	let (num_part, unit_part) = size_clean.split_at(split_idx);
 
-    let multiplier: u64 = match unit_part.trim() {
-        "b" | "" => 1,
-        "kb" => 1_000,
-        "mb" => 1_000_000,
-        "gb" => 1_000_000_000,
-        "tb" => 1_000_000_000_000,
+	let multiplier: u64 = match unit_part.trim() {
+		"b" | "" => 1,
+		"kb" => 1_000,
+		"mb" => 1_000_000,
+		"gb" => 1_000_000_000,
+		"tb" => 1_000_000_000_000,
 		"pb" => 1_000_000_000_000_000,
 		"eb" => 1_000_000_000_000_000_000,
-        "kib" => 1_024,
-        "mib" => 1_024 * 1_024,
-        "gib" => 1_024 * 1_024 * 1_024,
-        "tib" => 1_024 * 1_024 * 1_024 * 1_024,
+		"kib" => 1_024,
+		"mib" => 1_024 * 1_024,
+		"gib" => 1_024 * 1_024 * 1_024,
+		"tib" => 1_024 * 1_024 * 1_024 * 1_024,
 		"pib" => 1_024 * 1_024 * 1_024 * 1_024 * 1_024,
 		"eib" => 1_024 * 1_024 * 1_024 * 1_024 * 1_024 * 1_024,
-        _ => return Err(format!("Unidade desconhecida: {}", unit_part)),
-    };
+		_ => return Err(format!("Unidade desconhecida: {}", unit_part)),
+	};
 
-    // Separa inteiro e fração (ex: "7.30" -> "7" e "30")
-    let (int_str, frac_str) = match num_part.split_once('.') {
-        Some((int_str, frac_str)) => (int_str, frac_str),
-        None => (num_part, ""),
-    };
+	// Separa inteiro e fração (ex: "7.30" -> "7" e "30")
+	let (int_str, frac_str) = match num_part.split_once('.') {
+		Some((int_str, frac_str)) => (int_str, frac_str),
+		None => (num_part, ""),
+	};
 
-    // 1. Calcula parte inteira
-    let int_num: u64 = int_str.parse().map_err(|_| format!("Inteiro inválido: {}", int_str))?;
-    let mut total_bytes = int_num.checked_mul(multiplier).ok_or_else(||format!("Overflow no inteiro: {}", int_num))?;
+	// 1. Calcula parte inteira
+	let int_num: u64 = int_str.parse().map_err(|_| format!("Inteiro inválido: {}", int_str))?;
+	let mut total_bytes = int_num.checked_mul(multiplier).ok_or_else(||format!("Overflow no inteiro: {}", int_num))?;
 
-    // 2. Calcula parte fracionária (regra de três com arredondamento)
-    if !frac_str.is_empty() {
-        let frac_num: u64 = frac_str.parse().map_err(|_| format!("Fração inválida: {}", frac_str))?;
-        let divisor = 10u64.pow(frac_str.len() as u32);
+	// 2. Calcula parte fracionária (regra de três com arredondamento)
+	if !frac_str.is_empty() {
+		let frac_num: u64 = frac_str.parse().map_err(|_| format!("Fração inválida: {}", frac_str))?;
+		let divisor = 10u64.pow(frac_str.len() as u32);
 
-        // Fórmula: (frac_num * multiplier) / 10^casas_decimais
-        // Adiciona (divisor / 2) antes de dividir para arredondar o inteiro corretamente
-        let numerator = frac_num.checked_mul(multiplier).ok_or_else(||format!("Overflow na fração: {}", frac_num))?;
-        let frac_bytes = (numerator + (divisor / 2)) / divisor;
+		// Fórmula: (frac_num * multiplier) / 10^casas_decimais
+		// Adiciona (divisor / 2) antes de dividir para arredondar o inteiro corretamente
+		let numerator = frac_num.checked_mul(multiplier).ok_or_else(||format!("Overflow na fração: {}", frac_num))?;
+		let frac_bytes = (numerator + (divisor / 2)) / divisor;
 
-        total_bytes = total_bytes.checked_add(frac_bytes).ok_or("Overflow total de bytes")?;
-    }
+		total_bytes = total_bytes.checked_add(frac_bytes).ok_or("Overflow total de bytes")?;
+	}
 
-    Ok(total_bytes)
+	Ok(total_bytes)
 }
 
 /// Wrapper do [`parse_bytes`] que se ajusta ao sistema operacional.
@@ -119,38 +119,38 @@ pub fn parse_bytes(size: &str) -> Result<u64, String> {
 /// use common_crate::fs::bytes::parse_bytes_sys;
 /// #[cfg(windows)] // Windows
 /// {
-///     let size = parse_bytes_sys("1 KB").unwrap();
-///     assert_eq!(size, 1024); // KB lido como KiB
+///	 let size = parse_bytes_sys("1 KB").unwrap();
+///	 assert_eq!(size, 1024); // KB lido como KiB
 /// }
 ///
 /// #[cfg(not(windows))] // Linux/Mac
 /// {
-///     let size = parse_bytes_sys("1 KB").unwrap();
-///     assert_eq!(size, 1000); // Padrão decimal
+///	 let size = parse_bytes_sys("1 KB").unwrap();
+///	 assert_eq!(size, 1000); // Padrão decimal
 /// }
 /// ```
 pub fn parse_bytes_sys(size: &str) -> Result<u64, String> {
 	#[cfg(windows)]
 	{
-    	let size_clean = size.trim().to_lowercase();
+		let size_clean = size.trim().to_lowercase();
 		
-    	// Encontra onde começa a unidade (primeiro caractere alfabético ou vazio)
-    	// Isso evita problemas com ',' ou '.' que fazem parte do número
-    	let split_idx = size_clean.find(|c: char| c.is_alphabetic()).unwrap_or(size_clean.len());
-    	let (num_part, unit_part) = size_clean.split_at(split_idx);
+		// Encontra onde começa a unidade (primeiro caractere alfabético ou vazio)
+		// Isso evita problemas com ',' ou '.' que fazem parte do número
+		let split_idx = size_clean.find(|c: char| c.is_alphabetic()).unwrap_or(size_clean.len());
+		let (num_part, unit_part) = size_clean.split_at(split_idx);
 
-    	let new_unit_part = match unit_part {
-    	    "kb" => "kib",
-    	    "mb" => "mib",
-    	    "gb" => "gib",
-    	    "tb" => "tib",
-    	    "pb" => "pib",
-    	    "eb" => "eib",
-    	    _ => unit_part, // Mantém b, kib ou vazio
-    	};
+		let new_unit_part = match unit_part {
+			"kb" => "kib",
+			"mb" => "mib",
+			"gb" => "gib",
+			"tb" => "tib",
+			"pb" => "pib",
+			"eb" => "eib",
+			_ => unit_part, // Mantém b, kib ou vazio
+		};
 
-    	// Reconstrói a string e delega a matemática para o parse_bytes oficial
-    	parse_bytes(&format!("{}{}", num_part, new_unit_part))
+		// Reconstrói a string e delega a matemática para o parse_bytes oficial
+		parse_bytes(&format!("{}{}", num_part, new_unit_part))
 	}
 	#[cfg(not(windows))]
 	{
@@ -180,30 +180,30 @@ pub enum Unit { Binary, Decimal, Sysd, Sysb }
 ///	assert_eq!(b2, "2 MB"); // precision: 1 = 1.7 MB, 2 = 1.67 MB...
 /// ```
 pub fn convert_bytes(bytes: u64, unit: Unit, precision: usize) -> String {
-    let (divisor, suffixes) = match unit {
-        Unit::Binary => (1024.0, ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"]),
-        Unit::Decimal => (1000.0, ["B", "KB", "MB", "GB", "TB", "PB", "EB"]),
-        Unit::Sysd => {
-            #[cfg(windows)]
-            { (1024.0, ["B", "KB", "MB", "GB", "TB", "PB", "EB"]) }
-            #[cfg(not(windows))]
-            { (1000.0, ["B", "KB", "MB", "GB", "TB", "PB", "EB"]) }
-        }
+	let (divisor, suffixes) = match unit {
+		Unit::Binary => (1024.0, ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"]),
+		Unit::Decimal => (1000.0, ["B", "KB", "MB", "GB", "TB", "PB", "EB"]),
+		Unit::Sysd => {
+			#[cfg(windows)]
+			{ (1024.0, ["B", "KB", "MB", "GB", "TB", "PB", "EB"]) }
+			#[cfg(not(windows))]
+			{ (1000.0, ["B", "KB", "MB", "GB", "TB", "PB", "EB"]) }
+		}
 		Unit::Sysb => {
 			#[cfg(windows)]
 			{ (1024.0, ["B", "KB", "MB", "GB", "TB", "PB", "EB"]) }
 			#[cfg(not(windows))]
 			{ (1024.0, ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"]) }		
 		}
-    };
+	};
 
-    let mut bytes = bytes as f64;
-    let mut magnitude = 0;
+	let mut bytes = bytes as f64;
+	let mut magnitude = 0;
 
-    while bytes >= divisor && magnitude < suffixes.len() - 1 {
-        bytes /= divisor;
-        magnitude += 1;
-    }
+	while bytes >= divisor && magnitude < suffixes.len() - 1 {
+		bytes /= divisor;
+		magnitude += 1;
+	}
 
-    format!("{:.2$} {}", bytes, suffixes[magnitude], precision)
+	format!("{:.2$} {}", bytes, suffixes[magnitude], precision)
 }

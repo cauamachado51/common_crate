@@ -11,7 +11,7 @@ pub static PAUSE_TEXT: RwLock<&'static str> = RwLock::new("Pressione enter para 
 /// pause()
 /// ```
 pub fn pause() {
-    print!("{}", PAUSE_TEXT.read().unwrap());
-    io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut String::new()).unwrap();
+	print!("{}", PAUSE_TEXT.read().unwrap());
+	io::stdout().flush().unwrap();
+	io::stdin().read_line(&mut String::new()).unwrap();
 }

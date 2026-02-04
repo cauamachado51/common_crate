@@ -16,7 +16,7 @@ fn main() { // cargo test --test wildmatch -- --nocapture
 	for _ in 0..9 { WildMatch::new(pattern).matches(input); }
 	let time = Instant::now();
 	let _b = WildMatch::new(pattern).matches(input);
-	println!("WildMatch      {}", time.elapsed().as_nanos()); // ~1300
+	println!("WildMatch	  {}", time.elapsed().as_nanos()); // ~1300
 
 	println!("{:=^20}", "insensitive");
 	for _ in 0..9 { wildmatch(input, pattern, false); }
@@ -32,5 +32,5 @@ fn main() { // cargo test --test wildmatch -- --nocapture
 	for _ in 0..9 { WildMatch::new(pattern.to_lowercase().as_str()).matches(input.to_lowercase().as_str()); }
 	let time = Instant::now();
 	let _e = WildMatch::new(pattern.to_lowercase().as_str()).matches(input.to_lowercase().as_str());
-	println!("WildMatch      {}", time.elapsed().as_nanos()); // ~1400
+	println!("WildMatch	  {}", time.elapsed().as_nanos()); // ~1400
 }

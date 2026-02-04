@@ -15,7 +15,7 @@ use std::fs;
 /// cargo test --test find_in_path -- --nocapture: find_in_path 1156µs, which 2860µs
 #[cfg(not(windows))]
 pub fn find_in_path(file: &str) -> Option<PathBuf> {
-    let paths_str = env::var_os("PATH")?;
+	let paths_str = env::var_os("PATH")?;
 	let paths_iter = env::split_paths(&paths_str);
 	let mut file_paths = paths_iter.map(|dir|dir.join(&file));
 	return file_paths.find(|file_path| file_path.is_file())
@@ -37,29 +37,29 @@ pub fn find_in_path(file: &str) -> Option<PathBuf> {
 /// 2. usa [`fs::canonicalize`] (mais rápido que [`fs::read_dir`]) para evitar erros de maiúsculas/minúsculas em extensões.
 #[cfg(windows)]
 pub fn find_in_path(file: &str) -> Option<PathBuf> {
-    let paths_str = env::var_os("PATH")?;
-    let paths_iter = env::split_paths(&paths_str);
+	let paths_str = env::var_os("PATH")?;
+	let paths_iter = env::split_paths(&paths_str);
 
-    let exts: Vec<String> =
+	let exts: Vec<String> =
 	if Path::new(file).extension().is_none()
 	{ env::var("PATHEXT").unwrap_or_default()
-        .split(';').filter(|s| !s.is_empty())
-        .map(|s| s.to_string()).collect()
-    }
+		.split(';').filter(|s| !s.is_empty())
+		.map(|s| s.to_string()).collect()
+	}
 	else { vec![String::new()] };
 
-    for dir in paths_iter {
-        for ext in &exts {
-            let mut file_path = dir.join(file);
+	for dir in paths_iter {
+		for ext in &exts {
+			let mut file_path = dir.join(file);
 
-            if !ext.is_empty() { file_path.as_mut_os_string().push(ext); }
+			if !ext.is_empty() { file_path.as_mut_os_string().push(ext); }
 
 			if file_path.exists() {
-            	if let Ok(file_canon) = file_path.canonicalize() { // canon para não ser EXE/exe erroneamente
-            	    return Some(file_canon.clean_verbatim());
-            	}
+				if let Ok(file_canon) = file_path.canonicalize() { // canon para não ser EXE/exe erroneamente
+					return Some(file_canon.clean_verbatim());
+				}
 			}
-        }
-    }
-    None
+		}
+	}
+	None
 }

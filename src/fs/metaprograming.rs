@@ -14,22 +14,22 @@ where
 	let mut path = PathBuf::from(path.as_ref());
 	let file_size = parse_bytes(file_size).map_err(|e| io::Error::new(io::ErrorKind::InvalidInput, e))?;
 
-    for folder_n in 0..=folder_recursion {
-        fs::create_dir_all(&path)?;
-        
-        for file_n in 1..=file_quantity {
-            let file_name = format!("file_{:04}.bin", file_n);
-            let file_path = path.join(file_name);
+	for folder_n in 0..=folder_recursion {
+		fs::create_dir_all(&path)?;
+		
+		for file_n in 1..=file_quantity {
+			let file_name = format!("file_{:04}.bin", file_n);
+			let file_path = path.join(file_name);
 
-            let file = File::create(&file_path)?;
-            file.set_len(file_size)?; 
-        }
+			let file = File::create(&file_path)?;
+			file.set_len(file_size)?; 
+		}
 
-        // Atualiza o Path para a próxima iteração, se ainda houver recursão
-        if folder_n < folder_recursion {
-            path.push(format!("SubFolder_{}", folder_n + 1));
-        }
-    }
+		// Atualiza o Path para a próxima iteração, se ainda houver recursão
+		if folder_n < folder_recursion {
+			path.push(format!("SubFolder_{}", folder_n + 1));
+		}
+	}
 
-    Ok(())
+	Ok(())
 }

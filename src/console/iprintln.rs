@@ -17,19 +17,19 @@
 #[doc(hidden)]
 #[macro_export]
 macro_rules! iprintln {
-    ($($arg:tt)*) => {{
-        use std::fs::OpenOptions;
-        use std::io::Write;
+	($($arg:tt)*) => {{
+		use std::fs::OpenOptions;
+		use std::io::Write;
 
-        #[cfg(windows)]
-        let device = "CONOUT$";
-        #[cfg(not(windows))]
-        let device = "/dev/tty";
+		#[cfg(windows)]
+		let device = "CONOUT$";
+		#[cfg(not(windows))]
+		let device = "/dev/tty";
 
-        if let Ok(mut console) = OpenOptions::new().write(true).open(device) {
-            let _ = writeln!(console, $($arg)*);
-        }
-    }};
+		if let Ok(mut console) = OpenOptions::new().write(true).open(device) {
+			let _ = writeln!(console, $($arg)*);
+		}
+	}};
 }
 
 /// Exibe texto diretamente no terminal, sem usar canais como stdout e stderr.
@@ -51,17 +51,17 @@ macro_rules! iprintln {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! iprint {
-    ($($arg:tt)*) => {{
-        use std::fs::OpenOptions;
-        use std::io::Write;
+	($($arg:tt)*) => {{
+		use std::fs::OpenOptions;
+		use std::io::Write;
 
-        #[cfg(windows)]
-        let device = "CONOUT$";
-        #[cfg(not(windows))]
-        let device = "/dev/tty";
+		#[cfg(windows)]
+		let device = "CONOUT$";
+		#[cfg(not(windows))]
+		let device = "/dev/tty";
 
-        if let Ok(mut console) = OpenOptions::new().write(true).open(device) {
-            let _ = write!(console, $($arg)*);
-        }
-    }};
+		if let Ok(mut console) = OpenOptions::new().write(true).open(device) {
+			let _ = write!(console, $($arg)*);
+		}
+	}};
 }

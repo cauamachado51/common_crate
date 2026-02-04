@@ -20,35 +20,35 @@ fn main() {
 	// ================================================================================
 
 	let timeinstant = Instant::now();
-    copy_dir(fstest_big, fstest_big_dst, true).unwrap(); 
-    println!("2x1gb: {}ms", timeinstant.elapsed().as_millis());
+	copy_dir(fstest_big, fstest_big_dst, true).unwrap(); 
+	println!("2x1gb: {}ms", timeinstant.elapsed().as_millis());
 	remove_dir_all(fstest_big_dst).unwrap();
 
-    let timeinstant = Instant::now();
-    copy_dir(fstest_tiny, fstest_tiny_dst, true).unwrap(); 
-    println!("198x1mb: {}ms", timeinstant.elapsed().as_millis());
+	let timeinstant = Instant::now();
+	copy_dir(fstest_tiny, fstest_tiny_dst, true).unwrap(); 
+	println!("198x1mb: {}ms", timeinstant.elapsed().as_millis());
 	remove_dir_all(fstest_tiny_dst).unwrap();
 	
-    let timeinstant = Instant::now();
-    copy_dir(fstest_both, fstest_both_dst, true).unwrap(); 
-    println!("198x1mb+2x1gb: {}ms", timeinstant.elapsed().as_millis());
+	let timeinstant = Instant::now();
+	copy_dir(fstest_both, fstest_both_dst, true).unwrap(); 
+	println!("198x1mb+2x1gb: {}ms", timeinstant.elapsed().as_millis());
 	remove_dir_all(fstest_both_dst).unwrap();
 	
 	println!("==================================================================");
 
-    let timeinstant = Instant::now();
-    copy_dir2(fstest_big, fstest_big_dst, true).unwrap(); 
-    println!("2x1gb: {}ms", timeinstant.elapsed().as_millis());
+	let timeinstant = Instant::now();
+	copy_dir2(fstest_big, fstest_big_dst, true).unwrap(); 
+	println!("2x1gb: {}ms", timeinstant.elapsed().as_millis());
 	remove_dir_all(fstest_big_dst).unwrap();
 
-    let timeinstant = Instant::now();
-    copy_dir2(fstest_tiny, fstest_tiny_dst, true).unwrap(); 
-    println!("198x1mb: {}ms", timeinstant.elapsed().as_millis());
+	let timeinstant = Instant::now();
+	copy_dir2(fstest_tiny, fstest_tiny_dst, true).unwrap(); 
+	println!("198x1mb: {}ms", timeinstant.elapsed().as_millis());
 	remove_dir_all(fstest_tiny_dst).unwrap();
 	
-    let timeinstant = Instant::now();
-    copy_dir2(fstest_both, fstest_both_dst, true).unwrap(); 
-    println!("198x1mb+2x1gb: {}ms", timeinstant.elapsed().as_millis());
+	let timeinstant = Instant::now();
+	copy_dir2(fstest_both, fstest_both_dst, true).unwrap(); 
+	println!("198x1mb+2x1gb: {}ms", timeinstant.elapsed().as_millis());
 	remove_dir_all(fstest_both_dst).unwrap();
 }
 
@@ -64,31 +64,31 @@ use std::{fs, io};
 /// - 198x1mb+2x1gb: 18650ms
 fn copy_dir2<P, Q>(src: P, dst: Q, only_different: bool) -> io::Result<()>
 where
-    P: AsRef<Path>,
-    Q: AsRef<Path>,
+	P: AsRef<Path>,
+	Q: AsRef<Path>,
 {
-    let dst = dst.as_ref();
-    fs::create_dir_all(dst)?;
+	let dst = dst.as_ref();
+	fs::create_dir_all(dst)?;
 
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let src_entry = entry.path();
-        let dst_entry = dst.join(entry.file_name());
+	for entry in fs::read_dir(src)? {
+		let entry = entry?;
+		let src_entry = entry.path();
+		let dst_entry = dst.join(entry.file_name());
 
-        if src_entry.is_dir() {
-            copy_dir2(&src_entry, &dst_entry, only_different)?;
-        } else if only_different && dst_entry.exists() {
-            let src_meta = fs::metadata(&src_entry)?;
-            let dst_meta = fs::metadata(&dst_entry)?;
+		if src_entry.is_dir() {
+			copy_dir2(&src_entry, &dst_entry, only_different)?;
+		} else if only_different && dst_entry.exists() {
+			let src_meta = fs::metadata(&src_entry)?;
+			let dst_meta = fs::metadata(&dst_entry)?;
 
-            if src_meta.len() == dst_meta.len() // tamanho
-            && src_meta.modified()? == dst_meta.modified()? // data de modificação
-            { continue; } 
+			if src_meta.len() == dst_meta.len() // tamanho
+			&& src_meta.modified()? == dst_meta.modified()? // data de modificação
+			{ continue; } 
 
-            fs::copy(&src_entry, &dst_entry)?;
-        } else {
-            fs::copy(&src_entry, &dst_entry)?;
-        }
-    }
-    Ok(())
+			fs::copy(&src_entry, &dst_entry)?;
+		} else {
+			fs::copy(&src_entry, &dst_entry)?;
+		}
+	}
+	Ok(())
 }
