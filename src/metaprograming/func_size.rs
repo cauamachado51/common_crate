@@ -9,6 +9,7 @@ macro_rules! func_size {
 
         let mut file = fs::File::create("teste.rs").expect("Falha ao criar arquivo");
         file.write_all(file_content.as_bytes()).expect("Falha ao escrever");
+		todo!();
     };
 }
 

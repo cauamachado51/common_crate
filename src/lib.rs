@@ -5,6 +5,7 @@ use std::sync::Mutex;
 pub mod console;
 pub mod ds;
 pub mod fs;
+pub mod metaprograming;
 // pub mod metaprograming;
 
 /// Usado para bloquear a thread.
