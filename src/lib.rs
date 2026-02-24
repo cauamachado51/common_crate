@@ -6,6 +6,7 @@ pub mod console;
 pub mod ds;
 pub mod fs;
 pub mod metaprogramming;
+pub mod fmt;
 
 /// Usado para bloquear a thread.
 /// - [`fs::copy_dir`]: não travar o disco.
