@@ -1,4 +1,4 @@
-/// 2-3x mais rápido que WildMatch da crate wildmatch. suporte apenas a `*`.
+/// 2-3x mais rápido que WildMatch da crate [wildmatch](https://crates.io/crates/wildmatch). suporte apenas a `*`.
 /// ### Exemplo
 /// ```
 /// use common_crate::ds::wildmatch;
