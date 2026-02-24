@@ -2,9 +2,10 @@ use std::ffi::OsString;
 use std::os::windows::ffi::{OsStrExt, OsStringExt};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use std::{io, mem};
 use windows::Win32::Foundation::{
-	ERROR_FILE_NOT_FOUND, ERROR_NO_MORE_FILES, HANDLE, INVALID_HANDLE_VALUE,
+	ERROR_FILE_NOT_FOUND, ERROR_NO_MORE_FILES, FILETIME, HANDLE, INVALID_HANDLE_VALUE,
 };
 use windows::Win32::Storage::FileSystem::{
 	FILE_ATTRIBUTE_DIRECTORY, FILE_ATTRIBUTE_REPARSE_POINT, FIND_FIRST_EX_FLAGS, FindClose,
@@ -34,8 +35,7 @@ impl DirEntry {
 	}
 
 	pub fn metadata(&self) -> io::Result<Metadata> {
-		// delega para std usando o path completo
-		std::fs::metadata(self.path()).map(Metadata)
+		Ok(Metadata::from(&self.data))
 	}
 
 	pub fn file_type(&self) -> io::Result<FileType> {
@@ -66,16 +66,79 @@ impl FileType {
 	}
 }
 
-// ── Metadata (wrapper fino) ───────────────────────────────────────────────────
+// ── Permissions ───────────────────────────────────────────────────────────────
 
-pub struct Metadata(std::fs::Metadata);
+use windows::Win32::Storage::FileSystem::FILE_ATTRIBUTE_READONLY;
 
-impl std::ops::Deref for Metadata {
-	type Target = std::fs::Metadata;
-	fn deref(&self) -> &Self::Target {
-		&self.0
+#[derive(Clone, Debug)]
+pub struct Permissions {
+	attrs: u32,
+}
+
+impl Permissions {
+	pub fn readonly(&self) -> bool {
+		(self.attrs & FILE_ATTRIBUTE_READONLY.0) != 0
+	}
+
+	pub fn set_readonly(&mut self, readonly: bool) {
+		if readonly {
+			self.attrs |= FILE_ATTRIBUTE_READONLY.0;
+		} else {
+			self.attrs &= !FILE_ATTRIBUTE_READONLY.0;
+		}
 	}
 }
+
+// ── Metadata ──────────────────────────────────────────────────────────────────
+
+pub struct Metadata {
+	attributes: u32,
+	file_size: u64,
+	created: FILETIME,
+	accessed: FILETIME,
+	modified: FILETIME,
+}
+
+impl Metadata {
+	fn from(data: &WIN32_FIND_DATAW) -> Self {
+		Self {
+			attributes: data.dwFileAttributes,
+			file_size: (data.nFileSizeHigh as u64) << 32 | data.nFileSizeLow as u64,
+			created: data.ftCreationTime,
+			accessed: data.ftLastAccessTime,
+			modified: data.ftLastWriteTime,
+		}
+	}
+
+	pub fn file_type(&self) -> FileType {
+		FileType {
+			is_dir: (self.attributes & FILE_ATTRIBUTE_DIRECTORY.0) != 0,
+			is_symlink: (self.attributes & FILE_ATTRIBUTE_REPARSE_POINT.0) != 0,
+		}
+	}
+	pub fn is_dir(&self) -> bool { (self.attributes & FILE_ATTRIBUTE_DIRECTORY.0) != 0 }
+	pub fn is_file(&self) -> bool { !self.is_dir() && !self.is_symlink() }
+	pub fn is_symlink(&self) -> bool { (self.attributes & FILE_ATTRIBUTE_REPARSE_POINT.0) != 0 }
+	pub fn len(&self) -> u64 { self.file_size }
+	pub fn permissions(&self) -> Permissions { Permissions { attrs: self.attributes } }
+	pub fn modified(&self) -> io::Result<SystemTime> { systemtime_from(self.modified) }
+	pub fn accessed(&self) -> io::Result<SystemTime> { systemtime_from(self.accessed) }
+	pub fn created(&self) -> io::Result<SystemTime> { systemtime_from(self.created) }
+}
+
+fn systemtime_from(ft: FILETIME) -> io::Result<SystemTime> {
+	let intervals = (ft.dwHighDateTime as u64) << 32 | ft.dwLowDateTime as u64;
+	// FILETIME é em 100-nanosecond intervals desde 1601-01-01
+	// UNIX_EPOCH é 1970-01-01, diferença = 11644473600 segundos
+	const EPOCH_DIFF: u64 = 11_644_473_600;
+	let secs = intervals / 10_000_000;
+	let nanos = ((intervals % 10_000_000) * 100) as u32;
+	if secs < EPOCH_DIFF {
+		return Err(io::Error::new(io::ErrorKind::InvalidData, "time before unix epoch"));
+	}
+	Ok(UNIX_EPOCH + Duration::new(secs - EPOCH_DIFF, nanos))
+}
+
 
 // ── ReadDir ───────────────────────────────────────────────────────────────────
 
