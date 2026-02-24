@@ -1,11 +1,14 @@
 //! ## Sobre o que é a lib
 //! comandos que desejo que Rust tenha, com nomenclatura de PowerShell se possível.
+//! ## Features
+//! - `rayon`: [`fs::copy_dir`] singlethread -> multithread.
 use std::sync::Mutex;
 
 pub mod console;
 pub mod ds;
 pub mod fs;
 pub mod metaprogramming;
+pub mod fmt;
 
 /// Usado para bloquear a thread.
 /// - [`fs::copy_dir`]: não travar o disco.

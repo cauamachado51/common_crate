@@ -8,3 +8,6 @@ pub use parse_vec::parse_vec;
 
 mod wildmatch;
 pub use wildmatch::wildmatch;
+
+mod num_ext;
+pub use num_ext::NumExt;

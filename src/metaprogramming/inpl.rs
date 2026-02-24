@@ -22,6 +22,7 @@ macro_rules! impl_try_from_via_from_str {
 	($tipo:ty) => {
 		impl TryFrom<&str> for $tipo {
 			type Error = <$tipo as std::str::FromStr>::Err;
+			#[inline(always)]
 			fn try_from(s: &str) -> Result<Self, Self::Error> {
 				s.parse()
 			}
@@ -50,6 +51,7 @@ macro_rules! impl_from_str_via_try_from {
 	($tipo:ty, $erro:ty) => {
 		impl std::str::FromStr for $tipo {
 			type Err = $erro;
+			#[inline(always)]
 			fn from_str(s: &str) -> Result<Self, Self::Err> {
 				Self::try_from(s)
 			}

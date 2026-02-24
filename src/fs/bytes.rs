@@ -67,21 +67,35 @@ pub fn parse_bytes(size: &str) -> Result<u64, String> {
 	let split_idx = size_clean.find(|c: char| !c.is_numeric() && c != '.').unwrap_or(size_clean.len());
 	let (num_part, unit_part) = size_clean.split_at(split_idx);
 
-	let multiplier: u64 = match unit_part.trim() {
-		"b" | "" => 1,
-		"kb" => 1_000,
-		"mb" => 1_000_000,
-		"gb" => 1_000_000_000,
-		"tb" => 1_000_000_000_000,
-		"pb" => 1_000_000_000_000_000,
-		"eb" => 1_000_000_000_000_000_000,
-		"kib" => 1_024,
-		"mib" => 1_024 * 1_024,
-		"gib" => 1_024 * 1_024 * 1_024,
-		"tib" => 1_024 * 1_024 * 1_024 * 1_024,
-		"pib" => 1_024 * 1_024 * 1_024 * 1_024 * 1_024,
-		"eib" => 1_024 * 1_024 * 1_024 * 1_024 * 1_024 * 1_024,
-		_ => return Err(format!("Unidade desconhecida: {}", unit_part)),
+	let unit_part = unit_part.trim();
+	let multiplier: u64 = if unit_part.is_empty() || unit_part.eq_ignore_ascii_case("b") {
+		1
+	} else if unit_part.eq_ignore_ascii_case("kb") {
+		1_000
+	} else if unit_part.eq_ignore_ascii_case("mb") {
+		1_000_000
+	} else if unit_part.eq_ignore_ascii_case("gb") {
+		1_000_000_000
+	} else if unit_part.eq_ignore_ascii_case("tb") {
+		1_000_000_000_000
+	} else if unit_part.eq_ignore_ascii_case("pb") {
+		1_000_000_000_000_000
+	} else if unit_part.eq_ignore_ascii_case("eb") {
+		1_000_000_000_000_000_000
+	} else if unit_part.eq_ignore_ascii_case("kib") {
+		1_024
+	} else if unit_part.eq_ignore_ascii_case("mib") {
+		1_024 * 1_024
+	} else if unit_part.eq_ignore_ascii_case("gib") {
+		1_024 * 1_024 * 1_024
+	} else if unit_part.eq_ignore_ascii_case("tib") {
+		1_024 * 1_024 * 1_024 * 1_024
+	} else if unit_part.eq_ignore_ascii_case("pib") {
+		1_024 * 1_024 * 1_024 * 1_024 * 1_024
+	} else if unit_part.eq_ignore_ascii_case("eib") {
+		1_024 * 1_024 * 1_024 * 1_024 * 1_024 * 1_024
+	} else {
+		return Err(format!("Unidade desconhecida: {}", unit_part));
 	};
 
 	// Separa inteiro e fração (ex: "7.30" -> "7" e "30")
