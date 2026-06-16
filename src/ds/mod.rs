@@ -11,3 +11,6 @@ pub use wildmatch::wildmatch;
 
 mod num_ext;
 pub use num_ext::NumExt;
+
+mod normalized;
+pub use normalized::Normalized;
