@@ -25,8 +25,8 @@ pub fn find_in_path(file: &str) -> Option<PathBuf> {
 /// ### Exemplo
 /// ```
 /// use common_crate::fs::find_in_path;
-/// let notepad = find_in_path("notepad").unwrap();
-/// assert_eq!(notepad, std::path::PathBuf::from(r"C:\Windows\System32\notepad.exe"));
+/// let notepad = find_in_path("regedit").unwrap();
+/// assert_eq!(notepad, std::path::PathBuf::from(r"C:\Windows\regedit.exe"));
 /// ```
 /// ### Testes
 /// cargo bloat --release --example String: size_find_in_path 135.5KiB, size_which 162.5KiB<br>

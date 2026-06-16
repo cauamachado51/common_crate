@@ -11,6 +11,8 @@ resolver = "3"
 [dependencies]
 rayon = { version = "1.11.0", default-features = false, optional = true } # copy_dir
 procedural = { path = "procedural" }
+parselnk = "0.1.1"
+opener = "0.8.5" # competidor do open
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.62.2", default-features = false, features = ["std", "Win32_Foundation", "Win32_Storage_FileSystem"] }
@@ -20,6 +22,7 @@ criterion = { version = "0.7.0", default-features = false }
 which = "8.0.0" # competidor do find_in_path
 walkdir = "2.3.4" # competidor ganhador do read_dirs
 wildmatch = "2.6.1" # competidor do match_wildcard
+open = "5.4.1" # competidor do open
 
 [[bench]]
 name = "key_value"
@@ -30,3 +33,12 @@ harness = false
 [[bench]]
 name = "find_in_path"
 harness = false
+
+[lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+nursery = { level = "deny", priority = -1 }
+tabs_in_doc_comments = "allow"
+# pedantic fix
+too-long-first-doc-paragraph = "allow"
+use_self = "allow"
+inline_always = "allow"

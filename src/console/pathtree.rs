@@ -37,6 +37,38 @@ impl<'a> PathTree<'a> {
 		self.respect_gitignore = value;
 		self
 	}
+	/// ```txt
+	/// pasta/
+	/// ├─ Nova pasta/
+	/// │  ├─ Nova pasta again/
+	/// │  ├─ teste again.py
+	/// │  └─ teste again.ps1
+	/// ├─ teste.py
+	/// └─ teste.ps1
+	/// ```
+	/// ### Erros Comuns
+	/// - não é uma pasta
+	/// - permissão de leitura negada
+	pub fn write(&self, w: &mut impl fmt::Write) -> io::Result<()> {
+		if !self.root.is_dir() { return Err(io::Error::new(io::ErrorKind::Other, "root não é uma pasta")) }
+
+		let mut buf;
+		let mut exclude_vec;
+		let exclude: &[&str] = if self.respect_gitignore {
+			buf = String::new();
+			exclude_vec = excludes_of_gitignore(self.root, &mut buf);
+			exclude_vec.extend(self.exclude);
+			&exclude_vec
+		} else { self.exclude };
+
+		// normaliza patterns (Windows usa `\`, gitignore usa `/`).
+		let exclude: Vec<String> = exclude.iter().map(|p| p.trim_end_matches('/').trim_end_matches('\\').replace('\\', "/")).collect();
+		let include: Vec<String> = self.include.iter().map(|p| p.trim_end_matches('/').trim_end_matches('\\').replace('\\', "/")).collect();
+
+		// caso não de nome, é "."
+		write!(w, "{}/", self.root.file_name().unwrap_or(self.root.as_os_str()).display()).map_err(|_| io::Error::new(io::ErrorKind::Other, "fmt error"))?;
+		write_tree(w, self.root, self.root, "", &include, &exclude)
+	}
 	/// Recria a estrutura de arquivos/pastas a partir da saída do `PathTree`.
 	///
 	/// Suporta saída com `├─`, `└─`, `│` e variações de quantidade de `─`.
@@ -96,48 +128,26 @@ impl<'a> PathTree<'a> {
 	}
 }
 
-/// ```txt
-/// pasta/
-/// ├─ Nova pasta/
-/// │  ├─ Nova pasta again/
-/// │  ├─ teste again.py
-/// │  └─ teste again.ps1
-/// ├─ teste.py
-/// └─ teste.ps1
-/// ```
+/// [`PathTree::write`]
 impl fmt::Display for PathTree<'_> {
+	#[inline(always)]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		if !self.root.is_dir() { return Err(fmt::Error) }
-
-		let mut buf;
-		let mut exclude_vec;
-		let exclude: &[&str] = if self.respect_gitignore {
-			buf = String::new();
-			exclude_vec = excludes_of_gitignore(self.root, &mut buf);
-			exclude_vec.extend(self.exclude);
-			&exclude_vec
-		} else { self.exclude };
-
-		// caso não de nome, é "."
-		write!(f, "{}/", self.root.file_name().unwrap_or(self.root.as_os_str()).display())?;
-		write_tree(f, self.root, self.root, "", self.include, exclude)
+		self.write(f).map_err(|_| fmt::Error)
 	}
 }
 
-fn write_tree(f: &mut fmt::Formatter<'_>, root: &Path, current_path: &Path, prefix: &str, include: &[&str], exclude: &[&str]) -> fmt::Result {
+fn write_tree(w: &mut impl fmt::Write, root: &Path, current_path: &Path, prefix: &str, include: &[String], exclude: &[String]) -> io::Result<()> {
 	// itens em ordem: pastas primeiro, depois arquivos, ordenados alfabeticamente via
 	// case-insensitive (por causa que Z vem antes de a, mas exploradores ordenam case-insensitive).
 	let items = {
-		let entries: Vec<fs::DirEntry> = fs::read_dir(current_path)
-			.map_err(|_| fmt::Error)?
-			.collect::<Result<Vec<fs::DirEntry>, _>>()
-			.map_err(|_| fmt::Error)?;
+		let entries: Vec<fs::DirEntry> = fs::read_dir(current_path)?
+			.collect::<Result<Vec<fs::DirEntry>, _>>()?;
 
 		let mut keyed: Vec<(bool, String, fs::DirEntry)> = entries.into_iter().map(|e| {
-			let is_file = e.file_type().map(|t| t.is_file()).map_err(|_| fmt::Error)?;
+			let is_file = e.file_type().map(|t| t.is_file())?;
 			let name = e.file_name().to_string_lossy().to_lowercase();
 			Ok((is_file, name, e))
-		}).collect::<Result<Vec<(bool, String, fs::DirEntry)>, fmt::Error>>()?;
+		}).collect::<Result<Vec<(bool, String, fs::DirEntry)>, io::Error>>()?;
 
 		keyed.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
 
@@ -146,22 +156,17 @@ fn write_tree(f: &mut fmt::Formatter<'_>, root: &Path, current_path: &Path, pref
 
 	let root_len = root.as_os_str().len() + 1; // +1 para o separador
 
-	// normaliza patterns (Windows usa `\`, gitignore usa `/`).
-	// se fosse normalizar no filtro, seria n include+exclude vezes m itens em vez de apenas n include+exclude.
-	let exclude_n: Vec<String> = exclude.iter().map(|p| p.trim_end_matches('/').trim_end_matches('\\').replace('\\', "/")).collect();
-	let include_n: Vec<String> = include.iter().map(|p| p.trim_end_matches('/').trim_end_matches('\\').replace('\\', "/")).collect();
-
 	let items: Vec<fs::DirEntry> = items.into_iter().filter(|e| {
 		let full = e.path();
 		let relative = &full.to_string_lossy()[root_len..].replace('\\', "/");
 
 		// Filtra excludes
-		if exclude_n.iter().any(|pat| wildmatch(relative, pat, false)) {
+		if exclude.iter().any(|pat| wildmatch(relative, pat, false)) {
 			return false;
 		}
 		// Filtra includes
-		if include_n.is_empty() { return true; }
-		include_n.iter().any(|pat| {
+		if include.is_empty() { return true; }
+		include.iter().any(|pat| {
 			if full.is_dir() {
 				// pasta é ancestral do padrão (ex: "tests" para "tests/pasta/*.ps1")
 				if wildmatch(pat, &format!("{}/*", relative), false) {
@@ -187,7 +192,7 @@ fn write_tree(f: &mut fmt::Formatter<'_>, root: &Path, current_path: &Path, pref
 
 		let connector = if is_last { "└─ " } else { "├─ " };
 		let suffix = if is_dir { "/" } else { "" };
-		write!(f, "\n{}{}{}{}", prefix, connector, name, suffix)?;
+		write!(w, "\n{}{}{}{}", prefix, connector, name, suffix).map_err(|_| io::Error::new(io::ErrorKind::Other, "fmt error"))?;
 
 		if is_dir {
 			let new_prefix = if is_last {
@@ -195,7 +200,7 @@ fn write_tree(f: &mut fmt::Formatter<'_>, root: &Path, current_path: &Path, pref
 			} else {
 				format!("{prefix}│  ")
 			};
-			write_tree(f, root, &path, &new_prefix, include, exclude)?;
+			write_tree(w, root, &path, &new_prefix, include, exclude)?;
 		}
 	}
 

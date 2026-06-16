@@ -19,3 +19,7 @@ pub use extends_path::VERBATIM;
 
 #[cfg(windows)]
 pub mod windows;
+
+mod open;
+pub use open::open;
+pub use open::open2;
