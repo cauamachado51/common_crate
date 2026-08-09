@@ -1,4 +1,4 @@
-use std::{ io, path::{self, Path, PathBuf} };
+use std::{ fs::File, io::{self, ErrorKind}, path::{self, Path, PathBuf} };
 
 /// Prefixo de caminho em windows.
 ///
@@ -50,6 +50,14 @@ pub trait PathExt {
 
 	/// Wrapper para [`path::absolute`]
 	fn absolute(self) -> io::Result<PathBuf>;
+
+	/// Verifica se o usuario tem permissão de leitura.
+	/// ```
+	/// use common_crate::fs::PathExt; use std::path::{Path, PathBuf};
+	/// assert!(!Path::new(r"C:\Program Files\WindowsApps").is_readable());
+	/// assert!(Path::new(r"inexistente.txt").is_readable());
+	/// ```
+	fn is_readable(&self) -> bool;
 }
 
 impl<'a> PathExt for &'a Path {
@@ -86,6 +94,16 @@ impl<'a> PathExt for &'a Path {
 
 	fn absolute(self) -> io::Result<PathBuf> {
 		path::absolute(self)
+	}
+
+	fn is_readable(&self) -> bool {
+		match File::open(self) {
+			Ok(_) => true,
+			Err(e) => match e.kind() {
+				ErrorKind::PermissionDenied => false,
+				_ => true
+			},
+		}
 	}
 }
 
@@ -124,5 +142,10 @@ impl PathExt for PathBuf {
 
 	fn absolute(self) -> io::Result<PathBuf> {
 		path::absolute(self)
+	}
+
+	#[inline(always)]
+	fn is_readable(&self) -> bool {
+		self.as_path().is_readable()
 	}
 }

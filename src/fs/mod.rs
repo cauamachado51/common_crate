@@ -13,9 +13,9 @@ pub use find_in_path::find_in_path;
 
 pub mod bytes;
 
-mod extends_path;
-pub use extends_path::PathExt;
-pub use extends_path::VERBATIM;
+mod path_ext;
+pub use path_ext::PathExt;
+pub use path_ext::VERBATIM;
 
 #[cfg(windows)]
 pub mod windows;
