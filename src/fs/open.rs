@@ -1,6 +1,6 @@
 use std::ffi::OsStr;
 
-/// Abre arquivo, pasta e url no app padrão.
+/// Abre arquivo, pasta e uri no app padrão.
 /// 
 /// suporta Windows, Linux e MacOS. não retorna erro de arquivo inexistente, bloqueado, etc.
 /// ```no_run
@@ -8,6 +8,8 @@ use std::ffi::OsStr;
 /// fs::open(r"src");
 /// fs::open(r"Cargo.toml");
 /// fs::open("https:youtube.com");
+/// fs::open("steam:");
+/// fs::open("mailto:alguem@gmail.com");
 /// ```
 #[inline(always)]
 pub fn open(the: &str) {
@@ -35,6 +37,14 @@ pub fn open(the: &str) {
 /// fs::open2(r"Cargo.toml").unwrap();
 /// fs::open2("https:youtube.com").unwrap();
 /// ```
+/// ### erros
+/// pega:
+/// - arquivo não existe
+/// 
+/// não pega:
+/// - arquivo sem permissão de leitura
+/// - extensão do arquivo sem app padrão
+/// - arquivo bloqueado por processo
 #[inline(always)]
 pub fn open2(the: impl AsRef<OsStr>) -> Result<(), opener::OpenError> {
 	opener::open(the)

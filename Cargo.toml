@@ -23,6 +23,7 @@ which = "8.0.0" # competidor do find_in_path
 walkdir = "2.3.4" # competidor ganhador do read_dirs
 wildmatch = "2.6.1" # competidor do match_wildcard
 open = "5.4.1" # competidor do open
+faccess = "0.2.4" # competidor do is_readable
 
 [[bench]]
 name = "key_value"

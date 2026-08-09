@@ -14,8 +14,8 @@ use std::env;
 /// println!("$HOME/Desktop/teste.ps1: {}", expand_path("$HOME/Desktop/teste.ps1"));
 /// ```
 /// para listar variáveis de ambiente, use `std::env::vars().for_each(|(k, v)| println!("{}: {}", k, v));`
-pub fn expand_path(path: &str) -> String {
-	let mut result = path.to_string();
+pub fn expand_path(path: impl Into<String>) -> String {
+	let mut result = path.into();
 
 	#[cfg(windows)]
 	{
@@ -92,12 +92,6 @@ pub fn expand_path(path: &str) -> String {
 		if let Ok(home) = env::var("HOME").or_else(|_| env::var("USERPROFILE")) {
 			result = result.replacen("~", &home, 1);
 		}
-	}
-
-	// Normaliza as barras para o Windows
-	#[cfg(windows)]
-	{
-		result = result.replace('/', "\\");
 	}
 
 	result
