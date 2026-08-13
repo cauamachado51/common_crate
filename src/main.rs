@@ -1,5 +1,5 @@
-use common_crate::console::windows::{Level, find_via_startmenu};
+use common_crate::fs::win_open;
 
 fn main() {
-	println!("{:?}", find_via_startmenu("regedit.exe", Level::Global));
+	println!("{:?}", win_open(r"E:\Users\cauam\Desktop\Novo(a) Documento de Texto (2).a"));
 }

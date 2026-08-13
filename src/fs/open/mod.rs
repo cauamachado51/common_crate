@@ -17,7 +17,7 @@ pub fn open(the: &str) {
 		let _ = Command::new("rundll32.exe").args(["url.dll,FileProtocolHandler", the]).spawn();
 	}
 	#[cfg(target_os = "linux")]
-	{
+	{// ver depois: https://portland.freedesktop.org/doc/xdg-open.html
 		let _ = Command::new("xdg-open").arg(the).spawn();
 	}
 	#[cfg(target_os = "macos")]

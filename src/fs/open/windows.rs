@@ -1,5 +1,5 @@
 use std::{ffi::OsStr, io, os::windows::ffi::OsStrExt};
-use windows::core::PCWSTR;
+use windows::core::{PCWSTR, w};
 use windows::Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOW};
 
 /// Abre arquivo, pasta e url no app padrão.
@@ -11,18 +11,11 @@ use windows::Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOW};
 /// ```
 pub fn open(the: impl AsRef<OsStr>) -> io::Result<()> {
 	let the: Vec<u16> = the.as_ref().encode_wide().chain(std::iter::once(0)).collect();
-	const OPERATION: [u16; 5] = [
-		b'o' as u16,
-		b'p' as u16,
-		b'e' as u16,
-		b'n' as u16,
-		0
-	];
 
 	let result = unsafe {
 		ShellExecuteW(
 			None,
-			PCWSTR(OPERATION.as_ptr()),
+			w!("open"),
 			PCWSTR(the.as_ptr()),
 			PCWSTR::null(),
 			PCWSTR::null(),
@@ -30,9 +23,10 @@ pub fn open(the: impl AsRef<OsStr>) -> io::Result<()> {
 		)
 	};
 
-	if (result.0 as isize) > 32 {
+	let code = result.0 as isize;
+	if code > 32 {
 		Ok(())
 	} else {
-		Err(io::Error::last_os_error())
+		Err(io::Error::from_raw_os_error(code as i32))
 	}
 }
