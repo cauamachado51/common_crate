@@ -23,3 +23,4 @@ pub mod windows;
 mod open;
 pub use open::open;
 pub use open::open2;
+pub use open::win_open;

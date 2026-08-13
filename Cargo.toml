@@ -15,7 +15,11 @@ parselnk = "0.1.1"
 opener = "0.8.5" # competidor do open
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.62.2", default-features = false, features = ["std", "Win32_Foundation", "Win32_Storage_FileSystem"] }
+windows = { version = "0.62.2", default-features = false, features = [
+		"std", "Win32_Foundation", "Win32_Storage_FileSystem", # common_crate::fs::windows::read_dir
+		"Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", # common_crate::fs::win_open
+	]
+}
 
 [dev-dependencies]
 criterion = { version = "0.7.0", default-features = false }
