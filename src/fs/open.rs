@@ -39,6 +39,3 @@ pub fn open(the: &str) {
 pub fn open2(the: impl AsRef<OsStr>) -> Result<(), opener::OpenError> {
 	opener::open(the)
 }
-
-mod windows;
-pub use windows::open as win_open;
