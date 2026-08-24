@@ -11,13 +11,13 @@ resolver = "3"
 [dependencies]
 rayon = { version = "1.11.0", default-features = false, optional = true } # copy_dir
 procedural = { path = "procedural" }
-parselnk = "0.1.1"
-opener = "0.8.5" # competidor do open
+parselnk = { version = "0.1.2", git = "https://github.com/rustysec/parselnk-rs" }
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.62.2", default-features = false, features = ["std", "Win32_Foundation", "Win32_Storage_FileSystem"] }
 
 [dev-dependencies]
+opener = "0.8.5" # competidor do open
 criterion = { version = "0.7.0", default-features = false }
 which = "8.0.0" # competidor do find_in_path
 walkdir = "2.3.4" # competidor ganhador do read_dirs

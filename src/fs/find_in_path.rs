@@ -3,7 +3,7 @@ use crate::fs::PathExt;
 #[allow(unused_imports)]
 use std::fs;
 
-/// Busca o caminho de um arquivo no path do sistema.
+/// Busca o caminho de um arquivo no path.
 /// ### Exemplo
 /// ```
 /// use common_crate::fs::find_in_path;
@@ -21,7 +21,7 @@ pub fn find_in_path(file: &str) -> Option<PathBuf> {
 	return file_paths.find(|file_path| file_path.is_file())
 }
 
-/// Busca o caminho de um arquivo no path do sistema.
+/// Busca o caminho de um arquivo no path.
 /// ### Exemplo
 /// ```
 /// use common_crate::fs::find_in_path;
@@ -41,8 +41,8 @@ pub fn find_in_path(file: &str) -> Option<PathBuf> {
 	let paths_iter = env::split_paths(&paths_str);
 
 	let exts: Vec<String> =
-	if Path::new(file).extension().is_none()
-	{ env::var("PATHEXT").unwrap_or_default()
+	if Path::new(file).extension().is_none() {
+		env::var("PATHEXT").unwrap_or_default()
 		.split(';').filter(|s| !s.is_empty())
 		.map(|s| s.to_string()).collect()
 	}

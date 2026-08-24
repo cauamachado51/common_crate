@@ -27,9 +27,9 @@ impl Normalized<'_> {
 	pub const X: [char; 2]  = ['x', 'X'];
 	pub const Y: [char; 2]  = ['y', 'Y'];
 	pub const Z: [char; 2]  = ['z', 'Z'];
-	
+
 	pub fn equal(a: &char, b: &char) -> bool {
-		if a == b { // números, pontuação e espaços
+		if a == b { // números, pontuação e espaços // não seria mais rápido com?: a.to_lowercase().eq(b.to_lowercase())
 			return true;
 		} else if Self::A.contains(a) && Self::A.contains(b) {
 			return true;
@@ -107,13 +107,13 @@ impl Normalized<'_> {
 	pub fn contains(&self, other: &str) -> bool {
 		let contain: Vec<char> = other.chars().filter(|c| !matches!(c, '\u{0300}'..='\u{036F}')).collect();
 		if contain.is_empty() { return true }
-	
+
 		let mut target = self.0.chars().filter(|c| !matches!(c, '\u{0300}'..='\u{036F}'));
-	
+
 		loop {
 			let mut target_window = target.clone(); // O(1): copia só o estado do &str
 			let mut matched = true;
-		
+
 			for contain_char in &contain {
 				match target_window.next() {
 					Some(target_char) if Self::equal(&target_char, contain_char) => {}
@@ -122,9 +122,9 @@ impl Normalized<'_> {
 					None => return false,
 				}
 			}
-		
+
 			if matched { return true }
-		
+
 			// avança a janela em um char
 			if target.next().is_none() { return false }
 		}

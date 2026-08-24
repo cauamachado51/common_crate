@@ -1,7 +1,10 @@
 //! FileSystem module
 
-mod expand_path;
-pub use expand_path::expand_path;
+mod expand_vars;
+pub use expand_vars::expand_cmd;
+pub use expand_vars::expand_ps;
+pub use expand_vars::expand_bash;
+pub use expand_vars::expand_sugar;
 
 mod copy_dir;
 pub use copy_dir::copy_dir;
@@ -16,10 +19,11 @@ pub mod bytes;
 mod path_ext;
 pub use path_ext::PathExt;
 pub use path_ext::VERBATIM;
+pub use path_ext::Exist;
 
 #[cfg(windows)]
 pub mod windows;
 
 mod open;
 pub use open::open;
-pub use open::open2;
+pub use open::open_with;
