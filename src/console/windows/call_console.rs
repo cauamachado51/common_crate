@@ -42,12 +42,12 @@ impl Drop for Console {
 /// ```
 /// #![windows_subsystem = "windows"] // iniciar o programa apenas GUI
 /// use common_crate::console::{windows::call_console, read_host, pause};
-/// 
+///
 /// fn main() {
 ///	 algo();
 ///	 println!("não é exibido");
 /// }
-/// 
+///
 /// fn algo() {
 ///	 let _variavel_que_sera_dropada = call_console();
 ///	 let nome: String = read_host("Digite seu nome: ");
