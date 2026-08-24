@@ -1,61 +1,63 @@
 use std::env;
 
-/// Expande variáveis de ambiente do caminho. não testa se existe.
+/// Expande variáveis de ambiente do texto.
 /// ### Exemplo
 /// ```
-/// use common_crate::fs::expand_path;
-/// // Windows cmd
-/// println!("%USERPROFILE%/Desktop/teste.ps1: {}", expand_path("%USERPROFILE%/Desktop/teste.ps1"));
-/// // Windows PowerShell
-/// println!("$env:USERPROFILE/Desktop/teste.ps1: {}", expand_path("$env:USERPROFILE/Desktop/teste.ps1"));
-/// // Linux e Windows sugar syntaxe
-/// println!("~/Desktop/teste.ps1: {}", expand_path("~/Desktop/teste.ps1"));
-/// // Linux
-/// println!("$HOME/Desktop/teste.ps1: {}", expand_path("$HOME/Desktop/teste.ps1"));
+/// use common_crate::fs::expand_vars;
+/// unsafe { std::env::set_var("windir", r"C:\Windows") };
+/// unsafe { std::env::set_var("username", "james") };
+/// unsafe { std::env::set_var("home", "casa") };
+/// assert_eq!(expand_vars(r"$env:windir\%username%"), r"C:\Windows\james"); // Windows Powershell e Cmd
+/// assert_eq!(expand_vars(r"$windir\${username}"), r"C:\Windows\james"); // Linux Bash
+/// assert_eq!(expand_vars(r"~\minha"), r"casa\minha"); // sugar syntax para home/userprofile (só se for o primeiro caractere)
 /// ```
 /// para listar variáveis de ambiente, use `std::env::vars().for_each(|(k, v)| println!("{}: {}", k, v));`
-pub fn expand_path(path: impl Into<String>) -> String {
+pub fn expand_vars(path: impl Into<String>) -> String {
 	let mut result = path.into();
 
-	#[cfg(windows)]
+	// Substitui variáveis do Windows
 	{
-		// Substitui variáveis de CMD no Windows (%USERPROFILE%)
-		while let Some(start) = result.find('%') {
-			if let Some(end) = result[start + 1..].find('%') {
-				let var_name = &result[start + 1..start + 1 + end];
-				if let Ok(value) = env::var(var_name) {
-					result.replace_range(start..start + end + 2, &value);
-				} else {
-					break; // Evita loop infinito se variável não existir
-				}
+		// Substitui variáveis de Windows CMD (%USERPROFILE%)
+		let mut pos = 0; // posição da visibilidade de texto
+		while let Some(rel) = result[pos..].find('%') {
+			let start = pos + rel; // posição do '%' de abertura
+			let Some(len) = result[start + 1..].find('%') else {
+				break; // sem '%' de fechamento: nada mais a expandir
+			};
+			let end = start + 1 + len; // posição do '%' de fechamento
+
+			if let Ok(value) = env::var(&result[start + 1..end]) {
+				result.replace_range(start..=end, &value);
+				pos = start + value.len(); // não olha para onde já substituiu
 			} else {
-				break;
+				pos = end; // mantém o '%' de fechamento e continua procurando
 			}
 		}
 
-		// Substitui variáveis de PowerShell no Windows ($env:USERPROFILE)
-		while let Some(start) = result.find("$env:") {
-			let var_start = start + 5; // pula "$env:"
+		// Substitui variáveis de Windows PowerShell ($env:USERPROFILE)
+		let mut pos = 0;
+		while let Some(rel) = result[pos..].find("$env:") {
+			let start = pos + rel;
+			let var_start = start + "$env:".len();
 			let var_end = result[var_start..]
 				.find(|c: char| !c.is_alphanumeric() && c != '_')
-				.map(|pos| var_start + pos)
+				.map(|p| var_start + p)
 				.unwrap_or(result.len());
 
-			let var_name = &result[var_start..var_end];
-			if let Ok(value) = env::var(var_name) {
+			if let Ok(value) = env::var(&result[var_start..var_end]) {
 				result.replace_range(start..var_end, &value);
+				pos = start + value.len();
 			} else {
-				break; // Evita loop infinito se variável não existir
+				pos = var_end; // o nome só tem [A-Za-z0-9_], logo não contém "$env:"
 			}
 		}
 	}
 
-	// Substitui variáveis do Linux ($VAR ou ${VAR})
-	#[cfg(unix)]
+	// Substitui variáveis do Linux
 	{
 		let mut pos = 0;
-		while let Some(start) = result[pos..].find('$') {
-			let start = pos + start;
+		while let Some(rel) = result[pos..].find('$') {
+			let start = pos + rel;
 			let rest = &result[start + 1..];
 
 			let (var_name, end_offset) = if rest.starts_with('{') {
@@ -68,9 +70,7 @@ pub fn expand_path(path: impl Into<String>) -> String {
 				}
 			} else {
 				// Formato $VAR
-				let end = rest
-					.find(|c: char| !c.is_alphanumeric() && c != '_')
-					.unwrap_or(rest.len());
+				let end = rest.find(|c: char| !c.is_alphanumeric() && c != '_').unwrap_or(rest.len());
 				if end == 0 {
 					pos = start + 1;
 					continue;
@@ -80,17 +80,17 @@ pub fn expand_path(path: impl Into<String>) -> String {
 
 			if let Ok(value) = env::var(var_name) {
 				result.replace_range(start..start + end_offset, &value);
-				pos = start + value.len(); // continua após o valor inserido
+				pos = start + value.len();
 			} else {
 				pos = start + 1; // pula este $ e continua procurando
 			}
 		}
 	}
 
-	// Substitui ~ no início (funciona para Linux e Windows)
-	if result.starts_with("~/") || result == "~" {
+	// Substitui ~ no início (Linux e ~Windows)
+	if result.starts_with('~') {
 		if let Ok(home) = env::var("HOME").or_else(|_| env::var("USERPROFILE")) {
-			result = result.replacen("~", &home, 1);
+			result = result.replacen('~', &home, 1);
 		}
 	}
 
